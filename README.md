@@ -1,3 +1,53 @@
+
+# 源码分析
+
+## 文件结构
+
+``` bash
+/Users/liufang/openSource/FunnyLiu/egg-cluster
+├── index.js - 暴露startCluster方法，使用lib/master.js的ready()
+├── lib
+|  ├── agent_worker.js
+|  ├── app_worker.js
+|  ├── master.js
+|  └── utils
+|     ├── manager.js
+|     ├── messenger.js
+|     ├── options.js
+|     └── terminate.js
+
+```
+
+## 外部模块依赖
+
+请在： http://npm.broofa.com?q=egg-cluster 查看
+
+## 内部模块依赖
+
+![img](./inner.svg)
+
+## 逐个文件分析
+
+### index.js
+
+暴露startCluster方法，使用lib/master.js的ready()
+  
+### lib/master.js
+
+### lib/utils/options.js
+
+提供方法解析参数。
+
+参数校验，大量使用原生assert模块来对参数进行校验。
+
+### lib/utils/manager.js
+
+提供类Manager，继承自EventEmitter。用于管理worker，提供一些列api。
+
+### lib/utils/messenger.js
+
+
+
 # egg-cluster
 
 [![NPM version][npm-image]][npm-url]
