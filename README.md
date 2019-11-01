@@ -1,19 +1,22 @@
 
 # 源码分析
 
+主要是提供startCluster方法给egg-script start和egg-bin dev去调用。
+封装了agent/app/master进程间通信和关系。
+
 ## 文件结构
 
 ``` bash
 /Users/liufang/openSource/FunnyLiu/egg-cluster
 ├── index.js - 暴露startCluster方法，使用lib/master.js的ready()
 ├── lib
-|  ├── agent_worker.js
-|  ├── app_worker.js
-|  ├── master.js
+|  ├── agent_worker.js - fork agent进程时具体做的事情
+|  ├── app_worker.js - fork app进程时具体做的事情，主要是参数拼接和日志初始化。通过原生http模块创建server
+|  ├── master.js - 控制fork，并管理进程间通信和细节
 |  └── utils
-|     ├── manager.js
-|     ├── messenger.js
-|     ├── options.js
+|     ├── manager.js - 管理进程worker
+|     ├── messenger.js - 负责通信
+|     ├── options.js - 负责参数组装
 |     └── terminate.js
 
 ```
@@ -34,6 +37,19 @@
   
 ### lib/master.js
 
+继承自原生events模块。使用lib/utils/options.js来解析参数。
+使用lib/utils/manager.js来管理worker，使用lib/utils/messenger.js来和子进程app/agent通信。
+
+通过forkAppWorkers()和forkAgentWorker()来fork app 和agent的子进程。具体的fork app 的工作基于cfork模块，而agent则直接是原生child_process模块
+
+其中执行app和agent的具体内容存在于lib/app_worker.js和lib/agent_worker.js。
+
+### lib/app_worker.js
+
+fork app进程时具体执行的内容。
+
+拼接参数和日志相关，基于http模块创建server。
+
 ### lib/utils/options.js
 
 提供方法解析参数。
@@ -46,7 +62,11 @@
 
 ### lib/utils/messenger.js
 
+监听通信，根据to类型，给master/worker/agent分别通信。
 
+master是基于传入的master类，以事件方式通信。
+
+worker和agent则是通过sendmessage模块对其通信。
 
 # egg-cluster
 
